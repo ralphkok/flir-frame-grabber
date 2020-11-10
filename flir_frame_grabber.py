@@ -16,7 +16,7 @@ class FLIRFrameGrabber:
         return self._camera
     
     def get_dimensions(self):
-        return (self._camera_width, self._camera_height, self._num_color_channels, self._output_width, self._output_height)
+        return (self._camera_width, self._camera_height)
     
     def get_fps(self):
         return self._frame_grab_fps
@@ -31,7 +31,7 @@ class FLIRFrameGrabber:
     def get_latest_frame(self):
         return self._latest_camera_frame is not None, self._latest_camera_frame
     
-    def __init__(self, serial=None, num_color_channels=3, output_width=640, output_height=480):
+    def __init__(self, serial=None):
         if serial is None:
             raise Exception("Please provide a valid FLIR camera serial number")
         self._serial = serial;
@@ -41,9 +41,6 @@ class FLIRFrameGrabber:
         self._camera.Init()
         self._camera_width = self._camera.Width()
         self._camera_height = self._camera.Height()
-        self._num_color_channels = num_color_channels
-        self._output_width = output_width
-        self._output_height = output_height
         self._camera.AcquisitionMode.SetValue(PySpin.AcquisitionMode_Continuous)
         self._camera.BeginAcquisition()
         self._is_camera_inited = True
@@ -58,7 +55,6 @@ class FLIRFrameGrabber:
             del self._camera
             del self._camera_width
             del self._camera_height
-            del self._num_color_channels
             self._camera_list.Clear()
             del self._camera_list
             self._system.ReleaseInstance()
@@ -93,11 +89,7 @@ class FrameGrabWorker:
         while target.is_running():
             with self._lock:
                 frame = target.get_camera().GetNextImage()
-                width, height, num_color_channels, output_width, output_height = target.get_dimensions()
-                img = frame.GetData().reshape(height, width, num_color_channels)
-                if (num_color_channels == 1):
-                    img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-                    # TODO add more auto-conversion?
-                img = cv2.resize(img, (output_width, output_height))
+                width, height = target.get_dimensions()
+                img = frame.GetData().reshape(height, width)
                 target.set_latest_frame(img)
                 frame.Release()

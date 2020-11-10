@@ -2,15 +2,9 @@
 This repo provides a convenience class to perform threaded acquisition of frames from FLIR cameras.  
 This requires the [Spinnaker SDK](https://www.flir.com/products/spinnaker-sdk/) and PySpin (provided with the SDK) to be installed on your system.  
   
-To use, import and instantiate the `FLIRFrameGrabber` class with the following parameters:  
-* `serial` The serial number of the FLIR or Point Grey camera to connect to (required)
-* `num_threads` The number of threads to use when grabbing frames (optional, defaults to `1`)
-* `num_color_channels` The number of color channels in images acquisitioned from the camera (optional, defaults to `3`)
-* `output_width` The width of the output frames, in pixels (optional, defaults to `640`)
-* `output_height` The height of the output frames, in pixels (optional, defaults to `480`)
-  
-Use `start()` to initiate frame acquisition, `stop()` to stop acquisitioning frames, and `deinit()` to destroy.  
-Use `get_latest_frame()` to retrieve the most recently acquired frame, or `None` if frame acquisition is not running or has not yet grabbed a frame.  
+To use, import and instantiate the `FLIRFrameGrabber` class with the serial number of the FLIR or Point Grey camera to connect to, then call `start()` with the number of threads to use for frame acquisition (defaults to 1).  
+Call `stop()` to stop acquisitioning frames, and `deinit()` to destroy the instance.  
+To retrieve the latest frame, call `get_latest_frame()`. This returns a boolean and the last frame (or `None` if no frame is available).    
 
 See `example.py` for basic usage.  
 
